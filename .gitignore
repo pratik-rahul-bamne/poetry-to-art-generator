@@ -1,0 +1,31 @@
+# Environment variables
+.env
+
+# Runtime outputs & databases
+outputs/
+logs/
+*.db
+src/outputs/
+src/logs/
+src/*.db
+imagegen/backend/outputs/
+src/imagegen/backend/outputs/
+imagegen/history.json
+src/imagegen/history.json
+
+# Caches and Python compiled files
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+src/.pytest_cache/
+
+# Local environments and configurations
+.venv/
+venv/
+src/imagegen/.venv/
+.cursor/
+.DS_Store
+
+# Package metadata
+*.egg-info/

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ImageGen AI — Create Stunning Images with AI</title>
+  <meta name="description" content="Generate stunning AI images from text prompts using Stable Diffusion. Free, local, privacy-first image generation powered by your own hardware." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Animated Background -->
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="logo-text">ImageGen AI</span>
+      </div>
+      <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <a href="/" class="new-gen-btn" style="text-decoration: none; margin-bottom: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 8px; color: #a78bfa;">
+      📜 Poem Visualizer
+    </a>
+
+    <button class="new-gen-btn" id="newGenBtn">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+      New Generation
+    </button>
+
+    <div class="sidebar-section-label">Recent</div>
+    <div class="history-list" id="historyList">
+      <div class="history-empty">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <p>No generations yet</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content" id="mainContent">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" title="Menu">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <div class="model-badge">
+        <div class="model-dot"></div>
+        Stable Diffusion 1.5
+      </div>
+      <div class="status-indicator" id="statusIndicator">
+        <div class="status-dot idle" id="statusDot"></div>
+        <span id="statusText">Ready</span>
+      </div>
+    </header>
+
+    <!-- Welcome Screen -->
+    <section class="welcome-screen" id="welcomeScreen">
+      <div class="welcome-content">
+        <div class="welcome-logo">
+          <div class="glowing-icon">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="64" height="64" rx="16" fill="url(#grad)"/>
+              <path d="M20 44L28 28L36 38L40 32L48 44H20Z" fill="white" opacity="0.9"/>
+              <circle cx="26" cy="24" r="4" fill="white" opacity="0.9"/>
+              <defs>
+                <linearGradient id="grad" x1="0" y1="0" x2="64" y2="64">
+                  <stop offset="0%" stop-color="#7C3AED"/>
+                  <stop offset="100%" stop-color="#2563EB"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+        </div>
+        <h1 class="welcome-title">What will you create today?</h1>
+        <p class="welcome-subtitle">Powered by Stable Diffusion · Runs locally on your machine · 100% private</p>
+
+        <div class="suggestion-grid">
+          <button class="suggestion-card" data-prompt="A majestic dragon soaring over a neon-lit cyberpunk city at night, ultra-detailed, cinematic">
+            <div class="suggestion-img" style="background: linear-gradient(135deg,#1a0533,#2d1b69)">🐉</div>
+            <span>Cyberpunk Dragon</span>
+          </button>
+          <button class="suggestion-card" data-prompt="A serene Japanese cherry blossom garden with a wooden bridge over a koi pond, golden hour, photorealistic">
+            <div class="suggestion-img" style="background: linear-gradient(135deg,#2d0a0a,#5c2626)">🌸</div>
+            <span>Cherry Blossom Garden</span>
+          </button>
+          <button class="suggestion-card" data-prompt="An astronaut floating through a colorful nebula galaxy, cosmic dust, stars, 8k digital art">
+            <div class="suggestion-img" style="background: linear-gradient(135deg,#0a0a2d,#1a1a5c)">🚀</div>
+            <span>Space Astronaut</span>
+          </button>
+          <button class="suggestion-card" data-prompt="A fantasy castle on floating islands above the clouds, waterfalls, magical light beams, concept art">
+            <div class="suggestion-img" style="background: linear-gradient(135deg,#0a2d1a,#1a5c3a)">🏰</div>
+            <span>Floating Castle</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Area -->
+    <section class="results-area" id="resultsArea" style="display:none">
+      <div class="results-container" id="resultsContainer"></div>
+    </section>
+
+    <!-- Input Area -->
+    <footer class="input-area">
+      <!-- Style Selector -->
+      <div class="style-bar" id="styleBar">
+        <button class="style-chip active" data-style="none" id="style-none">✨ None</button>
+        <button class="style-chip" data-style="photorealistic" id="style-photorealistic">📷 Photo</button>
+        <button class="style-chip" data-style="anime" id="style-anime">🎌 Anime</button>
+        <button class="style-chip" data-style="oil_painting" id="style-oil_painting">🎨 Oil Paint</button>
+        <button class="style-chip" data-style="watercolor" id="style-watercolor">💧 Watercolor</button>
+        <button class="style-chip" data-style="digital_art" id="style-digital_art">🖥️ Digital Art</button>
+        <button class="style-chip" data-style="3d_render" id="style-3d_render">🎲 3D Render</button>
+        <button class="style-chip" data-style="cinematic" id="style-cinematic">🎬 Cinematic</button>
+        <button class="style-chip" data-style="sketch" id="style-sketch">✏️ Sketch</button>
+        <button class="style-chip" data-style="pixel_art" id="style-pixel_art">👾 Pixel Art</button>
+      </div>
+
+      <!-- Main Input Box -->
+      <div class="input-box">
+        <textarea
+          id="promptInput"
+          class="prompt-textarea"
+          placeholder="Describe the image you want to create..."
+          rows="1"
+        ></textarea>
+
+        <div class="input-actions">
+          <!-- Settings Toggle -->
+          <button class="action-btn" id="settingsToggle" title="Advanced Settings">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="currentColor" stroke-width="2"/></svg>
+          </button>
+
+          <!-- Generate Button -->
+          <button class="generate-btn" id="generateBtn" title="Generate Image">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none"><path d="M5 3l14 9-14 9V3z" fill="currentColor"/></svg>
+            <span class="btn-text">Generate</span>
+            <div class="btn-loader" style="display:none">
+              <div class="spinner"></div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Advanced Settings Panel -->
+      <div class="settings-panel" id="settingsPanel" style="display:none">
+        <div class="settings-grid">
+          <div class="setting-group">
+            <label>Size</label>
+            <div class="size-options">
+              <button class="size-btn active" data-w="512" data-h="512" id="size-512">512×512</button>
+              <button class="size-btn" data-w="512" data-h="768" id="size-port">512×768</button>
+              <button class="size-btn" data-w="768" data-h="512" id="size-land">768×512</button>
+              <button class="size-btn" data-w="640" data-h="640" id="size-640">640×640</button>
+            </div>
+          </div>
+          <div class="setting-group">
+            <label>Steps <span class="setting-value" id="stepsVal">20</span></label>
+            <input type="range" id="stepsRange" min="5" max="50" value="20" class="range-input" />
+            <div class="range-labels"><span>Fast (5)</span><span>Quality (50)</span></div>
+          </div>
+          <div class="setting-group">
+            <label>Guidance <span class="setting-value" id="guidanceVal">7.5</span></label>
+            <input type="range" id="guidanceRange" min="1" max="20" step="0.5" value="7.5" class="range-input" />
+            <div class="range-labels"><span>Creative</span><span>Precise</span></div>
+          </div>
+          <div class="setting-group">
+            <label>Images</label>
+            <div class="num-images-options">
+              <button class="num-btn active" data-num="1" id="num-1">1</button>
+              <button class="num-btn" data-num="2" id="num-2">2</button>
+              <button class="num-btn" data-num="4" id="num-4">4</button>
+            </div>
+          </div>
+          <div class="setting-group full-width">
+            <label>Seed <span class="setting-value">(-1 = random)</span></label>
+            <input type="number" id="seedInput" value="-1" min="-1" max="2147483647" class="text-input" placeholder="-1 for random" />
+          </div>
+          <div class="setting-group full-width">
+            <label>Negative Prompt</label>
+            <textarea id="negativePrompt" class="text-input" rows="2" placeholder="What to avoid in the image...">blurry, bad quality, distorted, ugly, deformed, low resolution, watermark, text, nsfw</textarea>
+          </div>
+        </div>
+      </div>
+
+      <p class="input-hint">CPU mode · ~2-5 min per image · All processing stays on your device 🔒</p>
+    </footer>
+  </main>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox" style="display:none">
+    <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
+    <div class="lightbox-content">
+      <button class="lightbox-close" id="lightboxClose">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <img class="lightbox-img" id="lightboxImg" src="" alt="" />
+      <div class="lightbox-info">
+        <p class="lightbox-prompt" id="lightboxPrompt"></p>
+        <div class="lightbox-actions">
+          <a class="lightbox-btn" id="lightboxDownload" download>
+            <svg viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Download
+          </a>
+          <button class="lightbox-btn" id="lightboxCopyPrompt">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Copy Prompt
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

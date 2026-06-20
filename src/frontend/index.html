@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PoemVision AI — Turn Words Into Art</title>
+  <meta name="description" content="Transform your poems into stunning AI-generated artwork. Paste any poem in English, Hindi, or Marathi and receive a beautiful, downloadable social-media-ready image powered by Google Gemini." />
+  <meta name="keywords" content="poem art generator, AI poem visualizer, Hindi poem artwork, Marathi poem, Gemini AI, Stable Diffusion" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Caveat:wght@400;600&family=Playfair+Display:ital,wght@0,700;1,700&family=Dancing+Script:wght@700&family=Kalam:wght@700&family=Baloo+2:wght@700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===================== BACKGROUND ===================== -->
+  <div class="bg-gradient"></div>
+  <div class="particles" id="particles"></div>
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">✦</span>
+        <span class="logo-text">PoemVision <span class="logo-ai">AI</span></span>
+      </div>
+      <div class="header-right">
+        <!-- SD Status Badge -->
+        <div class="sd-status-badge" id="sdStatusBadge" title="Stable Diffusion Model Status">
+          <div class="sd-dot" id="sdDot"></div>
+          <span id="sdStatusLabel">Checking model...</span>
+        </div>
+
+        <!-- Auth button -->
+        <div id="authButton">
+          <button class="btn-auth" id="loginBtn" onclick="openAuthModal('login')">Sign In</button>
+        </div>
+        <div id="userMenuWrap" class="hidden">
+          <button class="btn-user-menu" id="userMenuBtn" onclick="toggleUserDropdown()">
+            <span class="user-avatar" id="userAvatar">U</span>
+            <span id="userDisplayName">User</span>
+            <span>▾</span>
+          </button>
+          <div class="user-dropdown hidden" id="userDropdown">
+            <div class="dropdown-email" id="dropdownEmail"></div>
+            <hr class="dropdown-divider"/>
+            <button onclick="switchTab('history')">📜 My History</button>
+            <button onclick="switchTab('saved')">💾 Saved Poems</button>
+            <button onclick="switchTab('profile')">👤 Profile</button>
+            <button id="adminMenuBtn" class="hidden" onclick="switchTab('admin')">⚙️ Admin Panel</button>
+            <hr class="dropdown-divider"/>
+            <button onclick="logout()" class="btn-logout-item">Sign Out</button>
+          </div>
+        </div>
+
+        <nav class="nav-links">
+          <a href="/imagegen" class="nav-link nav-link-accent">✨ ImageGen 2</a>
+          <a href="#how-it-works" class="nav-link">How it works</a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- TAB NAV -->
+    <div class="tab-nav" id="tabNav">
+      <button class="tab-btn active" id="tab-generate" onclick="switchTab('generate')">✦ Generate</button>
+      <button class="tab-btn" id="tab-gallery" onclick="switchTab('gallery')">🖼️ Gallery</button>
+      <button class="tab-btn auth-only hidden" id="tab-history" onclick="switchTab('history')">📜 History</button>
+      <button class="tab-btn auth-only hidden" id="tab-saved" onclick="switchTab('saved')">💾 Saved Poems</button>
+      <button class="tab-btn auth-only hidden" id="tab-profile" onclick="switchTab('profile')">👤 Profile</button>
+      <button class="tab-btn admin-only hidden" id="tab-admin" onclick="switchTab('admin')">⚙️ Admin</button>
+    </div>
+  </header>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero" id="heroSection">
+    <div class="hero-badge">✦ Powered by Gemini + Stable Diffusion · Multi-Language</div>
+    <h1 class="hero-title">
+      Turn your <em>poem</em> into<br/>stunning <span class="gradient-text">visual art</span>
+    </h1>
+    <p class="hero-subtitle">
+      Paste any poem in English, Hindi, or Marathi. AI analyzes the mood,<br/>
+      generates a matching image, and overlays your words beautifully.
+    </p>
+  </section>
+
+  <!-- ===================== TAB PANELS ===================== -->
+
+  <!-- ── GENERATE TAB ── -->
+  <div class="tab-panel active" id="panel-generate">
+    <main class="app-container">
+
+      <!-- INPUT CARD -->
+      <div class="card input-card" id="inputCard">
+        <div class="card-header">
+          <h2 class="card-title">✦ Your Poem</h2>
+          <span class="char-counter" id="charCounter">0 / 1200</span>
+        </div>
+
+        <textarea
+          id="poemInput"
+          class="poem-textarea"
+          placeholder="Paste or type your poem here…&#10;&#10;Roses are red, violets are blue,&#10;In autumn's embrace, the world feels brand new…"
+          maxlength="1200"
+          spellcheck="false"
+        ></textarea>
+
+        <!-- Basic Options -->
+        <div class="input-options">
+          <div class="option-group">
+            <label class="option-label" for="themeSelect">Theme override</label>
+            <select id="themeSelect" class="select-input">
+              <option value="">Auto-detect</option>
+              <option value="romantic">💕 Romantic</option>
+              <option value="nature">🌿 Nature</option>
+              <option value="dark">🌑 Dark &amp; Mysterious</option>
+              <option value="joyful">☀️ Joyful</option>
+              <option value="mystical">🔮 Mystical</option>
+              <option value="melancholic">🌧️ Melancholic</option>
+            </select>
+          </div>
+
+          <div class="option-group">
+            <label class="option-label" for="fontSelect">Handwriting font</label>
+            <select id="fontSelect" class="select-input">
+              <option value="Dancing Script, cursive">Dancing Script (English)</option>
+              <option value="Kalam, cursive">Kalam (Hindi/Marathi)</option>
+              <option value="Baloo 2, cursive">Baloo 2 (Playful)</option>
+              <option value="Caveat, cursive">Caveat (Fallback)</option>
+            </select>
+          </div>
+
+          <div class="option-group">
+            <label class="option-label" for="formatSelect">Output format</label>
+            <select id="formatSelect" class="select-input">
+              <option value="square">◼ Square (1:1)</option>
+              <option value="story">▬ Story (9:16)</option>
+            </select>
+          </div>
+
+          <div class="option-group">
+            <label class="option-label" for="providerSelect">Image provider</label>
+            <select id="providerSelect" class="select-input">
+              <option value="stable-diffusion">🖥️ Local Stable Diffusion</option>
+              <option value="pollinations">☁️ Pollinations.ai (Cloud, Fast)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- SD Advanced Options -->
+        <div class="sd-options" id="sdOptions">
+          <div class="sd-options-header" id="sdOptionsToggle">
+            <span>⚙️ Stable Diffusion Settings</span>
+            <span class="sd-toggle-icon" id="sdToggleIcon">▼</span>
+          </div>
+          <div class="sd-options-body" id="sdOptionsBody">
+            <div class="sd-section-label">Art Style</div>
+            <div class="sd-style-chips" id="sdStyleChips">
+              <button class="sd-chip active" data-style="none">✨ None</button>
+              <button class="sd-chip" data-style="photorealistic">📷 Photo</button>
+              <button class="sd-chip" data-style="anime">🎌 Anime</button>
+              <button class="sd-chip" data-style="oil_painting">🎨 Oil Paint</button>
+              <button class="sd-chip" data-style="watercolor">💧 Watercolor</button>
+              <button class="sd-chip" data-style="digital_art">🖥️ Digital Art</button>
+              <button class="sd-chip" data-style="3d_render">🎲 3D Render</button>
+              <button class="sd-chip" data-style="cinematic">🎬 Cinematic</button>
+              <button class="sd-chip" data-style="sketch">✏️ Sketch</button>
+            </div>
+
+            <div class="sd-params-grid">
+              <div class="sd-param-group">
+                <label class="sd-param-label">Image Size</label>
+                <div class="sd-size-btns">
+                  <button class="sd-size-btn active" data-w="512" data-h="512">512×512</button>
+                  <button class="sd-size-btn" data-w="512" data-h="768">512×768</button>
+                  <button class="sd-size-btn" data-w="768" data-h="512">768×512</button>
+                </div>
+              </div>
+              <div class="sd-param-group">
+                <label class="sd-param-label">Steps <span class="sd-param-val" id="stepsVal">20</span></label>
+                <input type="range" id="sdSteps" class="sd-range" min="5" max="50" value="20" />
+                <div class="sd-range-labels"><span>Fast (5)</span><span>Quality (50)</span></div>
+              </div>
+              <div class="sd-param-group">
+                <label class="sd-param-label">Guidance <span class="sd-param-val" id="guidanceVal">7.5</span></label>
+                <input type="range" id="sdGuidance" class="sd-range" min="1" max="20" step="0.5" value="7.5" />
+                <div class="sd-range-labels"><span>Creative</span><span>Precise</span></div>
+              </div>
+              <div class="sd-param-group">
+                <label class="sd-param-label">Seed (-1 = random)</label>
+                <input type="number" id="sdSeed" class="sd-text-input" value="-1" min="-1" max="2147483647" />
+              </div>
+            </div>
+
+            <div class="sd-time-notice">
+              ⏱ CPU mode: ~3–6 min per image at 20 steps.
+              <span class="sd-preload-link" id="sdPreloadLink">Preload model now →</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Save toggle (auth users) -->
+        <div class="save-toggle hidden" id="saveToggleRow">
+          <label class="toggle-label">
+            <input type="checkbox" id="savePoemToggle" checked />
+            <span>Save this poem to my collection</span>
+          </label>
+        </div>
+
+        <button id="generateBtn" class="generate-btn" onclick="startGeneration()">
+          <span class="btn-icon">✦</span>
+          <span class="btn-text">Generate Artwork</span>
+          <span class="btn-shimmer"></span>
+        </button>
+      </div>
+
+      <!-- PROGRESS CARD -->
+      <div class="card progress-card hidden" id="progressCard">
+        <h2 class="card-title">Creating your artwork…</h2>
+        <div class="progress-steps" id="progressSteps">
+          <div class="step" id="step1" data-step="1">
+            <div class="step-icon">🧠</div>
+            <div class="step-info">
+              <div class="step-name">Analyzing poem</div>
+              <div class="step-desc">Theme, mood &amp; visual prompt extraction</div>
+            </div>
+            <div class="step-status idle">—</div>
+          </div>
+          <div class="step" id="step2" data-step="2">
+            <div class="step-icon">🎨</div>
+            <div class="step-info">
+              <div class="step-name">Generating background</div>
+              <div class="step-desc" id="step2Desc">AI creates a matching aesthetic image</div>
+            </div>
+            <div class="step-status idle">—</div>
+          </div>
+          <div class="step" id="step3" data-step="3">
+            <div class="step-icon">🖋️</div>
+            <div class="step-info">
+              <div class="step-name">Composing artwork</div>
+              <div class="step-desc">Overlaying handwritten poem on image</div>
+            </div>
+            <div class="step-status idle">—</div>
+          </div>
+        </div>
+
+        <div class="sd-progress-block hidden" id="sdProgressBlock">
+          <div class="sd-progress-label">
+            <span id="sdProgressText">Running Stable Diffusion...</span>
+            <span id="sdProgressNote">This may take a few minutes on CPU</span>
+          </div>
+          <div class="sd-progress-track">
+            <div class="sd-progress-fill shimmer-bar" id="sdProgressFill"></div>
+          </div>
+        </div>
+
+        <div class="analysis-tags hidden" id="analysisTags">
+          <span class="tag tag-theme" id="tagTheme"></span>
+          <span class="tag tag-mood" id="tagMood"></span>
+          <span class="tag tag-lang" id="tagLang"></span>
+        </div>
+      </div>
+
+      <!-- RESULT CARD -->
+      <div class="card result-card hidden" id="resultCard">
+        <div class="result-header">
+          <h2 class="card-title">✦ Your Artwork</h2>
+          <div class="result-meta" id="resultMeta"></div>
+        </div>
+
+        <div class="image-preview-wrap">
+          <img id="resultImage" class="result-image" src="" alt="Generated poem artwork" />
+          <div class="image-shine"></div>
+        </div>
+
+        <div class="download-section">
+          <p class="download-label">Download your artwork</p>
+          <div class="download-buttons">
+            <button class="download-btn primary" id="downloadSquareBtn" onclick="downloadImage('square')">
+              <span>◼</span> Square 1:1
+            </button>
+            <button class="download-btn secondary" id="downloadStoryBtn" onclick="downloadImage('story')">
+              <span>▬</span> Story 9:16
+            </button>
+          </div>
+        </div>
+
+        <!-- Save to collection (auth users) -->
+        <div class="save-result-row hidden" id="saveResultRow">
+          <button class="save-poem-btn" id="savePoemBtn" onclick="saveCurrentPoem()">
+            💾 Save poem to collection
+          </button>
+        </div>
+
+        <button class="try-again-btn" onclick="resetApp()">↺ Try another poem</button>
+      </div>
+
+      <!-- ERROR CARD -->
+      <div class="card error-card hidden" id="errorCard">
+        <div class="error-icon">⚠</div>
+        <h3 class="error-title">Something went wrong</h3>
+        <p class="error-message" id="errorMessage"></p>
+        <button class="try-again-btn" onclick="resetApp()">↺ Try again</button>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ── GALLERY TAB ── -->
+  <div class="tab-panel" id="panel-gallery">
+    <section class="gallery-section">
+      <h2 class="gallery-title">✦ Recent Creations</h2>
+      <p class="gallery-subtitle">Artwork generated by the community</p>
+      <div class="gallery-grid" id="galleryGrid">
+        <div class="gallery-loading">Loading gallery…</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ── HISTORY TAB ── -->
+  <div class="tab-panel" id="panel-history">
+    <section class="history-section">
+      <h2 class="section-title-tab">📜 My Generation History</h2>
+      <p class="section-subtitle">All your past artwork generations</p>
+      <div class="history-grid" id="historyGrid">
+        <div class="empty-state">Loading history…</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ── SAVED POEMS TAB ── -->
+  <div class="tab-panel" id="panel-saved">
+    <section class="saved-section">
+      <div class="saved-header">
+        <div>
+          <h2 class="section-title-tab">💾 Saved Poems</h2>
+          <p class="section-subtitle">Your personal poem collection</p>
+        </div>
+      </div>
+      <div class="saved-grid" id="savedGrid">
+        <div class="empty-state">Loading saved poems…</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ── PROFILE TAB ── -->
+  <div class="tab-panel" id="panel-profile">
+    <section class="profile-section">
+      <div class="profile-card card">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar-lg" id="profileAvatarLg">U</div>
+          <div>
+            <h2 class="profile-name" id="profileName">Loading…</h2>
+            <p class="profile-email" id="profileEmail"></p>
+            <span class="profile-badge" id="profileRole">user</span>
+          </div>
+        </div>
+
+        <div class="profile-stats" id="profileStats">
+          <div class="stat-box">
+            <div class="stat-num" id="statPoems">—</div>
+            <div class="stat-label">Poems Saved</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="statGenerations">—</div>
+            <div class="stat-label">Artworks Created</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="statMember">—</div>
+            <div class="stat-label">Member Since</div>
+          </div>
+        </div>
+
+        <div class="profile-edit">
+          <h3 class="edit-title">Update Profile</h3>
+          <div class="edit-row">
+            <input type="text" id="editName" class="sd-text-input" placeholder="Display name" />
+            <button class="btn-save-profile" onclick="updateProfile()">Save</button>
+          </div>
+          <p class="edit-hint" id="editHint"></p>
+        </div>
+
+        <button class="logout-btn" onclick="logout()">Sign Out</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ── ADMIN TAB ── -->
+  <div class="tab-panel" id="panel-admin">
+    <section class="admin-section">
+      <h2 class="section-title-tab">⚙️ Admin Dashboard</h2>
+
+      <div class="admin-stats-grid" id="adminStatsGrid">
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon">👥</div>
+          <div class="admin-stat-num" id="aStatUsers">—</div>
+          <div class="admin-stat-label">Total Users</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon">✍️</div>
+          <div class="admin-stat-num" id="aStatPoems">—</div>
+          <div class="admin-stat-label">Total Poems</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon">🎨</div>
+          <div class="admin-stat-num" id="aStatGens">—</div>
+          <div class="admin-stat-label">Generations</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon">📥</div>
+          <div class="admin-stat-num" id="aStatDownloads">—</div>
+          <div class="admin-stat-label">Downloads</div>
+        </div>
+      </div>
+
+      <div class="admin-panels">
+        <div class="card admin-panel">
+          <h3 class="admin-panel-title">Recent Activity Logs</h3>
+          <div class="admin-log-list" id="adminLogList">Loading…</div>
+        </div>
+        <div class="card admin-panel">
+          <h3 class="admin-panel-title">Registered Users</h3>
+          <div class="admin-user-list" id="adminUserList">Loading…</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===================== HOW IT WORKS ===================== -->
+  <section class="how-it-works" id="how-it-works">
+    <h2 class="section-title">How it works</h2>
+    <div class="steps-grid">
+      <div class="how-step">
+        <div class="how-icon">✍️</div>
+        <h3>1. Paste your poem</h3>
+        <p>Type or paste any poem in English, Hindi, or Marathi. Optionally choose a theme.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-icon">🧠</div>
+        <h3>2. AI analysis</h3>
+        <p>Gemini Flash extracts the theme, mood, and creates a visual image prompt.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-icon">🖥️</div>
+        <h3>3. Image generation</h3>
+        <p>Stable Diffusion or Pollinations.ai creates a matching aesthetic background.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-icon">📥</div>
+        <h3>4. Download</h3>
+        <p>Get your social-media-ready image in square or story format instantly.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer">
+    <p>Built with ❤️ using FastAPI · Gemini · Stable Diffusion · <a href="https://aistudio.google.com" target="_blank">Get your free API key</a></p>
+    <p class="footer-version">AI Poem Visualizer v2.0 — <a href="/api/docs" target="_blank">API Docs</a></p>
+  </footer>
+
+  <!-- ===================== AUTH MODAL ===================== -->
+  <div class="modal-overlay hidden" id="authModalOverlay" onclick="closeAuthModalIfOutside(event)">
+    <div class="modal-box" id="authModal">
+      <button class="modal-close" onclick="closeAuthModal()">✕</button>
+
+      <!-- Tab switcher -->
+      <div class="modal-tabs">
+        <button class="modal-tab active" id="modalTabLogin" onclick="switchModalTab('login')">Sign In</button>
+        <button class="modal-tab" id="modalTabRegister" onclick="switchModalTab('register')">Create Account</button>
+      </div>
+
+      <!-- Login form -->
+      <form class="auth-form" id="loginForm" onsubmit="submitLogin(event)">
+        <h2 class="modal-title">Welcome back ✦</h2>
+        <p class="modal-subtitle">Sign in to save your poems and track history</p>
+
+        <div class="form-group">
+          <label class="form-label" for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" class="form-input" placeholder="you@example.com" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required />
+        </div>
+        <div class="form-error hidden" id="loginError"></div>
+        <button type="submit" class="btn-submit" id="loginSubmitBtn">
+          <span>Sign In</span>
+        </button>
+        <p class="form-footer">No account? <span class="link-switch" onclick="switchModalTab('register')">Create one →</span></p>
+      </form>
+
+      <!-- Register form -->
+      <form class="auth-form hidden" id="registerForm" onsubmit="submitRegister(event)">
+        <h2 class="modal-title">Join PoemVision AI ✦</h2>
+        <p class="modal-subtitle">Create an account to save your artwork forever</p>
+
+        <div class="form-group">
+          <label class="form-label" for="regName">Full Name</label>
+          <input type="text" id="regName" class="form-input" placeholder="Pratik Bamne" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="regEmail">Email</label>
+          <input type="email" id="regEmail" class="form-input" placeholder="you@example.com" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="regPassword">Password</label>
+          <input type="password" id="regPassword" class="form-input" placeholder="Min. 6 characters" required />
+        </div>
+        <div class="form-error hidden" id="registerError"></div>
+        <button type="submit" class="btn-submit" id="registerSubmitBtn">
+          <span>Create Account</span>
+        </button>
+        <p class="form-footer">Already have an account? <span class="link-switch" onclick="switchModalTab('login')">Sign in →</span></p>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
